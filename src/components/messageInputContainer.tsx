@@ -7,10 +7,10 @@ type Props = {
 };
 
 /**
- * テキスト入力と音声入力を提供する
+ * Provides text input and voice input
  *
- * 音声認識の完了時は自動で送信し、返答文の生成中は入力を無効化する
- *
+ * Automatically sends the message when voice recognition completes,
+ * and disables input while generating a response
  */
 export const MessageInputContainer = ({
   isChatProcessing,
@@ -21,13 +21,13 @@ export const MessageInputContainer = ({
     useState<SpeechRecognition>();
   const [isMicRecording, setIsMicRecording] = useState(false);
 
-  // 音声認識の結果を処理する
+  /// Processes the result of speech recognition
   const handleRecognitionResult = useCallback(
     (event: SpeechRecognitionEvent) => {
       const text = event.results[0][0].transcript;
       setUserMessage(text);
 
-      // 発言の終了時
+      // Ends recognition if silence continues
       if (event.results[0].isFinal) {
         setUserMessage(text);
         // 返答文の生成を開始
@@ -62,14 +62,14 @@ export const MessageInputContainer = ({
     const SpeechRecognition =
       window.webkitSpeechRecognition || window.SpeechRecognition;
 
-    // FirefoxなどSpeechRecognition非対応環境対策
+    // For environments that do not support SpeechRecognition, like Firefox
     if (!SpeechRecognition) {
       return;
     }
     const recognition = new SpeechRecognition();
     recognition.lang = "ja-JP";
-    recognition.interimResults = true; // 認識の途中結果を返す
-    recognition.continuous = false; // 発言の終了時に認識を終了する
+    recognition.interimResults = true; // Return intermediate results
+    recognition.continuous = false; // Stop recognition when speech ends
 
     recognition.addEventListener("result", handleRecognitionResult);
     recognition.addEventListener("end", handleRecognitionEnd);

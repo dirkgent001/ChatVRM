@@ -1,3 +1,4 @@
+// src/components/settings.tsx
 import React from "react";
 import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
@@ -26,8 +27,11 @@ type Props = {
   onClickResetChatLog: () => void;
   onClickResetSystemPrompt: () => void;
   onChangeKoeiromapKey: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  modelProvider: "openai" | "ollama";
+  onChangeModelProvider: (provider: "openai" | "ollama") => void;
 };
-export const Settings = ({
+
+const Settings = ({
   openAiKey,
   chatLog,
   systemPrompt,
@@ -42,6 +46,8 @@ export const Settings = ({
   onClickResetChatLog,
   onClickResetSystemPrompt,
   onChangeKoeiromapKey,
+  modelProvider,
+  onChangeModelProvider,
 }: Props) => {
   return (
     <div className="absolute z-40 w-full h-full bg-white/80 backdrop-blur ">
@@ -50,13 +56,26 @@ export const Settings = ({
           iconName="24/Close"
           isProcessing={false}
           onClick={onClickClose}
-        ></IconButton>
+        />
       </div>
       <div className="max-h-full overflow-auto">
         <div className="text-text1 max-w-3xl mx-auto px-24 py-64 ">
-          <div className="my-24 typography-32 font-bold">設定</div>
+          <div className="my-24 typography-32 font-bold">Settings</div>
+
           <div className="my-24">
-            <div className="my-16 typography-20 font-bold">OpenAI API キー</div>
+            <div className="my-16 typography-20 font-bold">Model Provider</div>
+            <select
+              className="text-ellipsis px-16 py-8 w-full bg-surface1 hover:bg-surface1-hover rounded-8"
+              value={modelProvider}
+              onChange={(e) => onChangeModelProvider(e.target.value as "openai" | "ollama")}
+            >
+              <option value="openai">OpenAI</option>
+              <option value="ollama">Ollama</option>
+            </select>
+          </div>
+
+          <div className="my-24">
+            <div className="my-16 typography-20 font-bold">OpenAI API Key</div>
             <input
               className="text-ellipsis px-16 py-8 w-col-span-2 bg-surface1 hover:bg-surface1-hover rounded-8"
               type="text"
@@ -65,55 +84,47 @@ export const Settings = ({
               onChange={onChangeAiKey}
             />
             <div>
-              APIキーは
+              You can get your API key from{" "}
               <Link
                 url="https://platform.openai.com/account/api-keys"
-                label="OpenAIのサイト"
+                label="OpenAI's site"
               />
-              で取得できます。取得したAPIキーをフォームに入力してください。
+              . Paste it into this field.
             </div>
             <div className="my-16">
-              ChatGPT
-              APIはブラウザから直接アクセスしています。また、APIキーや会話内容はピクシブのサーバには保存されません。
+              The ChatGPT API is accessed directly from your browser. Neither your API key nor your conversation history is saved to Pixiv’s servers.
               <br />
-              ※利用しているモデルはChatGPT API (GPT-3.5)です。
+              ※ The model in use is ChatGPT API (GPT-3.5).
             </div>
           </div>
-          <div className="my-40">
-            <div className="my-16 typography-20 font-bold">
-              キャラクターモデル
-            </div>
-            <div className="my-8">
-              <TextButton onClick={onClickOpenVrmFile}>VRMを開く</TextButton>
-            </div>
-          </div>
-          <div className="my-40">
-            <div className="my-8">
-              <div className="my-16 typography-20 font-bold">
-                キャラクター設定（システムプロンプト）
-              </div>
-              <TextButton onClick={onClickResetSystemPrompt}>
-                キャラクター設定リセット
-              </TextButton>
-            </div>
 
+          <div className="my-40">
+            <div className="my-16 typography-20 font-bold">Character Model</div>
+            <div className="my-8">
+              <TextButton onClick={onClickOpenVrmFile}>Open VRM</TextButton>
+            </div>
+          </div>
+
+          <div className="my-40">
+            <div className="my-8">
+              <div className="my-16 typography-20 font-bold">Character Settings (System Prompt)</div>
+              <TextButton onClick={onClickResetSystemPrompt}>Reset Character Settings</TextButton>
+            </div>
             <textarea
               value={systemPrompt}
               onChange={onChangeSystemPrompt}
               className="px-16 py-8  bg-surface1 hover:bg-surface1-hover h-168 rounded-8 w-full"
-            ></textarea>
+            />
           </div>
+
           <div className="my-40">
-            <div className="my-16 typography-20 font-bold">声の調整</div>
+            <div className="my-16 typography-20 font-bold">Voice Adjustment</div>
             <div>
-              KoemotionのKoeiromap APIを使用しています。詳しくは
-              <Link
-                url="https://koemotion.rinna.co.jp"
-                label="https://koemotion.rinna.co.jp"
-              />
-              をご覧ください。
+              Uses Koemotion’s Koeiromap API. For more details, see{" "}
+              <Link url="https://koemotion.rinna.co.jp" label="https://koemotion.rinna.co.jp" />
+              .
             </div>
-            <div className="mt-16 font-bold">API キー</div>
+            <div className="mt-16 font-bold">API Key</div>
             <div className="mt-8">
               <input
                 className="text-ellipsis px-16 py-8 w-col-span-2 bg-surface1 hover:bg-surface1-hover rounded-8"
@@ -123,37 +134,12 @@ export const Settings = ({
                 onChange={onChangeKoeiromapKey}
               />
             </div>
-
-            <div className="mt-16 font-bold">プリセット</div>
+            <div className="mt-16 font-bold">Presets</div>
             <div className="my-8 grid grid-cols-2 gap-[8px]">
-              <TextButton
-                onClick={() =>
-                  onChangeKoeiroParam(PRESET_A.speakerX, PRESET_A.speakerY)
-                }
-              >
-                かわいい
-              </TextButton>
-              <TextButton
-                onClick={() =>
-                  onChangeKoeiroParam(PRESET_B.speakerX, PRESET_B.speakerY)
-                }
-              >
-                元気
-              </TextButton>
-              <TextButton
-                onClick={() =>
-                  onChangeKoeiroParam(PRESET_C.speakerX, PRESET_C.speakerY)
-                }
-              >
-                かっこいい
-              </TextButton>
-              <TextButton
-                onClick={() =>
-                  onChangeKoeiroParam(PRESET_D.speakerX, PRESET_D.speakerY)
-                }
-              >
-                渋い
-              </TextButton>
+              <TextButton onClick={() => onChangeKoeiroParam(PRESET_A.speakerX, PRESET_A.speakerY)}>Cute</TextButton>
+              <TextButton onClick={() => onChangeKoeiroParam(PRESET_B.speakerX, PRESET_B.speakerY)}>Energetic</TextButton>
+              <TextButton onClick={() => onChangeKoeiroParam(PRESET_C.speakerX, PRESET_C.speakerY)}>Cool</TextButton>
+              <TextButton onClick={() => onChangeKoeiroParam(PRESET_D.speakerX, PRESET_D.speakerY)}>Mature</TextButton>
             </div>
             <div className="my-24">
               <div className="select-none">x : {koeiroParam.speakerX}</div>
@@ -164,13 +150,8 @@ export const Settings = ({
                 step={0.001}
                 value={koeiroParam.speakerX}
                 className="mt-8 mb-16 input-range"
-                onChange={(e) => {
-                  onChangeKoeiroParam(
-                    Number(e.target.value),
-                    koeiroParam.speakerY
-                  );
-                }}
-              ></input>
+                onChange={(e) => onChangeKoeiroParam(Number(e.target.value), koeiroParam.speakerY)}
+              />
               <div className="select-none">y : {koeiroParam.speakerY}</div>
               <input
                 type="range"
@@ -179,45 +160,31 @@ export const Settings = ({
                 step={0.001}
                 value={koeiroParam.speakerY}
                 className="mt-8 mb-16 input-range"
-                onChange={(e) => {
-                  onChangeKoeiroParam(
-                    koeiroParam.speakerX,
-                    Number(e.target.value)
-                  );
-                }}
-              ></input>
+                onChange={(e) => onChangeKoeiroParam(koeiroParam.speakerX, Number(e.target.value))}
+              />
             </div>
           </div>
           {chatLog.length > 0 && (
             <div className="my-40">
               <div className="my-8 grid-cols-2">
-                <div className="my-16 typography-20 font-bold">会話履歴</div>
-                <TextButton onClick={onClickResetChatLog}>
-                  会話履歴リセット
-                </TextButton>
+                <div className="my-16 typography-20 font-bold">Chat History</div>
+                <TextButton onClick={onClickResetChatLog}>Reset Chat History</TextButton>
               </div>
               <div className="my-8">
-                {chatLog.map((value, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className="my-8 grid grid-flow-col  grid-cols-[min-content_1fr] gap-x-fixed"
-                    >
-                      <div className="w-[64px] py-8">
-                        {value.role === "assistant" ? "Character" : "You"}
-                      </div>
-                      <input
-                        key={index}
-                        className="bg-surface1 hover:bg-surface1-hover rounded-8 w-full px-16 py-8"
-                        type="text"
-                        value={value.content}
-                        onChange={(event) => {
-                          onChangeChatLog(index, event.target.value);
-                        }}
-                      ></input>
-                    </div>
-                  );
-                })}
+                {chatLog.map((value, index) => (
+                  <div
+                    key={index}
+                    className="my-8 grid grid-flow-col  grid-cols-[min-content_1fr] gap-x-fixed"
+                  >
+                    <div className="w-[64px] py-8">{value.role === "assistant" ? "Character" : "You"}</div>
+                    <input
+                      className="bg-surface1 hover:bg-surface1-hover rounded-8 w-full px-16 py-8"
+                      type="text"
+                      value={value.content}
+                      onChange={(event) => onChangeChatLog(index, event.target.value)}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -226,3 +193,5 @@ export const Settings = ({
     </div>
   );
 };
+
+export default Settings;
