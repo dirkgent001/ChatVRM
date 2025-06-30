@@ -90,14 +90,17 @@ export default function Home() {
 
       if (modelProvider === "ollama") {
         try {
-          const response = await getOllamaResponse(text);
-          const assistantText = response.message;
+          const response = await getOllamaResponse([
+            { role: "user", content: text }
+          ]);
 
+          const assistantText = await getOllamaResponse(messageLog);
           setAssistantMessage(assistantText);
           setChatLog([
             ...messageLog,
             { role: "assistant", content: assistantText },
           ]);
+
         } catch (error) {
           console.error(error);
           setAssistantMessage("Error communicating with Ollama.");
